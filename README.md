@@ -23,9 +23,6 @@
    - Right-click the `.bat` file and select **Run as administrator**.
    - Follow the on-screen prompts to select the drive you wish to re-lock.
 
-3. **Verify the Drive Status**:
-   - Ensure the drive is re-locked by checking its status in the BitLocker Management interface.
-
 ## Example
 
 To use the script, simply run it from an elevated command prompt:
