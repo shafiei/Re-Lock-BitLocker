@@ -22,11 +22,3 @@
 
    - Right-click the `.bat` file and select **Run as administrator**.
    - Follow the on-screen prompts to select the drive you wish to re-lock.
-
-## Example
-
-To use the script, simply run it from an elevated command prompt:
-
-```batch
-Re-Lock-BitLocker.bat
-```
