@@ -1,24 +1,57 @@
-# Re-Lock-BitLocker
+# Re-Lock BitLocker
 
-## Overview
+Re-lock a BitLocker drive after you've unlocked it, without restarting Windows.
 
-**Re-Lock-BitLocker** is a simple batch file utility designed to re-lock a BitLocker-encrypted drive after it has been unlocked, without requiring a system restart. This is useful for scenarios where you temporarily need to access a drive and then want to re-secure it without rebooting your system.
+There are two ways to use it:
 
-## Features
+| | For | Get it |
+|---|---|---|
+| **App** (recommended) | Everyday use. Windows 11 look, one-click lock. | `ReLockBitLocker-Setup.exe` from [Releases](https://github.com/shafiei/Re-Lock-BitLocker/releases) |
+| **Script** | Quick and portable, nothing to install. | [`Re-Lock-BitLocker.bat`](Re-Lock-BitLocker.bat) |
 
-- **Re-lock BitLocker Drive**: Easily re-locks an unlocked BitLocker drive.
-- **No Restart Required**: Re-locks the drive without needing to restart your Windows machine.
+## App
 
-## Prerequisites
+- Lists your BitLocker drives automatically, with their status
+- One click to lock a drive, or **Lock all**
+- Asks before locking, because open files on the drive are closed
+- Follows the Windows light/dark theme
+- Persian (RTL) or English, depending on the Windows display language
+- Self-contained: nothing else to install
 
-- **Windows OS**: This script is intended for Windows environments where BitLocker is used.
-- **Administrator Privileges**: You will need administrative rights to execute this script successfully.
+## Script
 
-## Usage
+1. Download `Re-Lock-BitLocker.bat`.
+2. Double-click it and approve the administrator prompt.
+3. Type the number of the drive to lock, `A` to lock all, or `Q` to quit.
 
-1. **Download the `.bat` File**: Download the `Re-Lock-BitLocker.bat` file from the repository.
+## Notes
 
-2. **Run the Script**:
+- Administrator rights are required (both the app and the script ask for them).
+- The Windows drive (usually `C:`) can't be locked; BitLocker doesn't allow it.
+- Locking uses *force dismount*, so anything still open on that drive is closed. Save your work first.
+- Windows 10/11, 64-bit. BitLocker must be available on your edition of Windows.
 
-   - Right-click the `.bat` file and select **Run as administrator**.
-   - Follow the on-screen prompts to select the drive you wish to re-lock.
+## Build from source
+
+You need the .NET 8 SDK, and [Inno Setup 6](https://jrsoftware.org/isinfo.php) for the installer.
+
+```
+build.bat
+```
+
+This publishes the app to `app\publish` and, if Inno Setup is installed, builds `installer\output\ReLockBitLocker-Setup.exe`.
+
+To publish a release automatically, push a tag such as `v1.0.0`; the workflow in `.github/workflows/release.yml` builds the installer and attaches it to the release.
+
+## فارسی
+
+برنامه‌ای کوچک برای قفل کردن دوباره‌ی درایو BitLocker بعد از بازکردنش، بدون ری‌استارت ویندوز.
+
+- **برنامه (پیشنهادی):** `ReLockBitLocker-Setup.exe` را از بخش Releases دانلود و نصب کنید.
+- **اسکریپت:** فایل `Re-Lock-BitLocker.bat` را اجرا کنید (بدون نیاز به نصب).
+
+هر دو نیاز به دسترسی ادمین دارند. درایو ویندوز (معمولاً `C:`) قابل قفل شدن نیست، و فایل‌های بازِ درایو هنگام قفل بسته می‌شوند.
+
+## License
+
+MIT
