@@ -84,12 +84,10 @@ If you don't want to install anything, you can use:
 
 ## Demo
 
-<p align="center">
-
 ![Re-Lock-BitLocker Demo](docs/Re-Lock-BitLocker-preview.gif)
 
 Watch the demo to see how Re-Lock BitLocker can lock an unlocked BitLocker drive without restarting Windows.
-</p>
+
 ---
 
 ## How to Use
