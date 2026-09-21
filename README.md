@@ -77,7 +77,7 @@ If you don't want to install anything, you can use:
 ## Screenshot
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Re-Lock BitLocker screenshot">
+  <img src="docs/Screenshot.png" alt="Re-Lock BitLocker screenshot">
 </p>
 
 ---
