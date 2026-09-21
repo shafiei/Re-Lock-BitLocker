@@ -1,3 +1,5 @@
+using System.Management;
+using System.Reflection;
 using System.Windows;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -7,6 +9,7 @@ namespace BitLockerLock;
 public partial class MainWindow : FluentWindow
 {
     private bool _busy;
+    private bool _statusIsError;
 
     public MainWindow()
     {
@@ -14,6 +17,9 @@ public partial class MainWindow : FluentWindow
         InitializeComponent();
 
         FlowDirection = Strings.IsFa ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        VersionText.Text = version is null ? string.Empty : $"v{version.Major}.{version.Minor}.{version.Build}";
 
         // Also fires on startup and whenever the user comes back to the window.
         Activated += async (_, _) => await RefreshAsync();
@@ -26,18 +32,42 @@ public partial class MainWindow : FluentWindow
         try
         {
             var drives = await Task.Run(BitLockerService.GetDrives);
-            DriveList.ItemsSource = drives;
-            EmptyState.Visibility = drives.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-            LockAllButton.IsEnabled = drives.Any(d => d.CanLock);
+            ShowDrives(drives);
+        }
+        catch (ManagementException ex) when (ex.ErrorCode is ManagementStatus.InvalidNamespace or ManagementStatus.InvalidClass)
+        {
+            ShowError(Strings.NotAvailable);
         }
         catch
         {
-            StatusText.Text = Strings.ReadFailed;
+            ShowError(Strings.ReadFailed);
         }
         finally
         {
             _busy = false;
         }
+    }
+
+    private void ShowDrives(IReadOnlyList<DriveItem> drives)
+    {
+        DriveList.ItemsSource = drives;
+        EmptyState.Visibility = drives.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        LockAllButton.IsEnabled = drives.Any(d => d.CanLock);
+
+        if (_statusIsError)
+        {
+            StatusText.Text = string.Empty;
+            _statusIsError = false;
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        DriveList.ItemsSource = null;
+        EmptyState.Visibility = Visibility.Visible;
+        LockAllButton.IsEnabled = false;
+        StatusText.Text = message;
+        _statusIsError = true;
     }
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
@@ -66,31 +96,46 @@ public partial class MainWindow : FluentWindow
     private async Task LockAsync(IReadOnlyList<DriveItem> items)
     {
         _busy = true;
+        DriveList.IsEnabled = false;
+        RefreshButton.IsEnabled = false;
+        LockAllButton.IsEnabled = false;
+
         int done = 0;
-        string? failure = null;
+        var failed = new List<(string Letter, uint Code)>();
 
         try
         {
             foreach (var item in items)
             {
-                var result = await Task.Run(() => BitLockerService.Lock(item.Letter));
+                LockResult result;
+                try
+                {
+                    result = await Task.Run(() => BitLockerService.Lock(item.Letter));
+                }
+                catch
+                {
+                    result = new LockResult(false, 0xFFFFFFFF);
+                }
+
                 if (result.Ok) done++;
-                else failure = string.Format(Strings.LockFailed, $"{item.Letter}:", $"0x{result.Code:X8}");
+                else failed.Add((item.Letter, result.Code));
             }
-        }
-        catch
-        {
-            failure = Strings.ReadFailed;
         }
         finally
         {
             _busy = false;
+            DriveList.IsEnabled = true;
+            RefreshButton.IsEnabled = true;
         }
 
-        StatusText.Text = failure ??
-            (items.Count == 1
-                ? string.Format(Strings.LockedOk, $"{items[0].Letter}:")
-                : string.Format(Strings.LockedAllOk, done));
+        StatusText.Text = failed.Count switch
+        {
+            0 when items.Count == 1 => string.Format(Strings.LockedOk, $"{items[0].Letter}:"),
+            0 => string.Format(Strings.LockedAllOk, done),
+            1 when done == 0 => string.Format(Strings.LockFailed, $"{failed[0].Letter}:", $"0x{failed[0].Code:X8}"),
+            _ => string.Format(Strings.SomeFailed, done, failed.Count),
+        };
+        _statusIsError = false;
 
         await RefreshAsync();
     }

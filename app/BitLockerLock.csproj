@@ -6,10 +6,26 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>ReLockBitLocker</AssemblyName>
     <RootNamespace>BitLockerLock</RootNamespace>
+    <AssemblyName>ReLockBitLocker</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish\**</DefaultItemExcludes>
+
+    <Version>1.0.1</Version>
+    <Product>Re-Lock BitLocker</Product>
+    <AssemblyTitle>Re-Lock BitLocker</AssemblyTitle>
+    <Company>shafiei</Company>
+    <Authors>shafiei</Authors>
+    <Description>Lock your BitLocker drives again in one click, without restarting Windows.</Description>
+    <Copyright>Copyright (c) shafiei. MIT License.</Copyright>
+    <RepositoryUrl>https://github.com/shafiei/Re-Lock-BitLocker</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\logo-64.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="WPF-UI" Version="3.0.5" />

@@ -2,11 +2,18 @@
 setlocal EnableExtensions EnableDelayedExpansion
 title Re-Lock BitLocker
 
-:: --- Make sure we are running as administrator (relaunch elevated if not) ---
-net session >nul 2>&1
+:: --- Make sure we are running as administrator (relaunch elevated once if not) ---
+fltmc >nul 2>&1
 if errorlevel 1 (
+    if /i "%~1"=="/elevated" (
+        echo Administrator rights are required, but they could not be obtained.
+        echo Right-click this file and choose "Run as administrator".
+        echo.
+        pause
+        exit /b 1
+    )
     echo Requesting administrator privileges...
-    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -ArgumentList '/elevated' -Verb RunAs"
     exit /b
 )
 
@@ -17,9 +24,9 @@ echo    Re-Lock BitLocker
 echo ==========================================
 echo.
 
-:: --- List unlocked BitLocker data drives (the Windows drive can't be locked) ---
+:: --- List unlocked, encrypted drives (the Windows drive can't be locked) ---
 set "count=0"
-for /f "usebackq tokens=1,2" %%A in (`powershell -NoProfile -Command "foreach ($v in Get-BitLockerVolume) { if ($v.VolumeType -eq 'Data' -and $v.LockStatus -eq 'Unlocked') { '{0} {1}' -f $v.MountPoint, [math]::Round($v.CapacityGB) } }" 2^>nul`) do (
+for /f "usebackq tokens=1,2" %%A in (`powershell -NoProfile -Command "foreach ($v in Get-BitLockerVolume) { if ($v.VolumeType -eq 'Data' -and $v.LockStatus -eq 'Unlocked' -and $v.VolumeStatus -ne 'FullyDecrypted') { '{0} {1}' -f $v.MountPoint, [math]::Round($v.CapacityGB) } }" 2^>nul`) do (
     set /a count+=1
     set "drive!count!=%%A"
     echo    [!count!]  %%A   %%B GB

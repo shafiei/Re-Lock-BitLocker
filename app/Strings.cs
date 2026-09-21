@@ -36,7 +36,13 @@ public static class Strings
 
     public static string LockedOk => T("{0} locked.", "{0} قفل شد.");
     public static string LockedAllOk => T("{0} drives locked.", "{0} درایو قفل شد.");
-    public static string LockFailed => T("Couldn't lock {0} (code {1}).", "قفل کردن {0} انجام نشد (کد {1}).");
+    public static string LockFailed => T("Couldn't lock {0} (code {1}). Close anything using it and try again.",
+                                         "قفل کردن {0} انجام نشد (کد {1}). برنامه‌هایی را که از آن استفاده می‌کنند ببندید و دوباره تلاش کنید.");
+    public static string SomeFailed => T("{0} locked, {1} couldn't be locked. Close anything using them and try again.",
+                                         "{0} درایو قفل شد، {1} درایو قفل نشد. برنامه‌هایی را که از آن‌ها استفاده می‌کنند ببندید و دوباره تلاش کنید.");
+
     public static string ReadFailed => T("Couldn't read the drives. Make sure the app is running as administrator.",
                                          "خواندن درایوها ممکن نشد. برنامه باید با دسترسی ادمین اجرا شود.");
+    public static string NotAvailable => T("BitLocker isn't available on this edition of Windows.",
+                                           "BitLocker در این نسخه از ویندوز در دسترس نیست.");
 }

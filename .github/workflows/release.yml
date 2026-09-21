@@ -1,6 +1,6 @@
 name: Release installer
 
-# Push a tag like v1.0.0 and this builds the installer and attaches it to a GitHub Release.
+# Push a tag such as v1.0.1 and this builds the installer and attaches it to a GitHub Release.
 on:
   push:
     tags:
@@ -19,13 +19,14 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Get version from tag
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Publish app
-        run: >
-          dotnet publish app/BitLockerLock.csproj -c Release -r win-x64
-          --self-contained true -p:PublishSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:EnableCompressionInSingleFile=true
-          -p:DebugType=None -p:DebugSymbols=false -o app/publish
+        run: dotnet publish app/BitLockerLock.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:Version=${{ env.VERSION }} -o app/publish
 
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
@@ -33,10 +34,20 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart('v')
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\setup.iss
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$env:VERSION" installer\setup.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $file = "installer/output/ReLockBitLocker-Setup.exe"
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+          "$hash  ReLockBitLocker-Setup.exe" | Out-File -FilePath "installer/output/SHA256SUMS.txt" -Encoding ascii
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: installer/output/ReLockBitLocker-Setup.exe
+          generate_release_notes: true
+          files: |
+            installer/output/ReLockBitLocker-Setup.exe
+            installer/output/SHA256SUMS.txt
