@@ -86,7 +86,7 @@ If you don't want to install anything, you can use:
 
 <!-- Replace the URL below with your YouTube video -->
 
-[![Re-Lock BitLocker Demo](docs/demo-thumbnail.png)](https://www.youtube.com/)
+![Re-Lock-BitLocker Demo](docs/Re-Lock-BitLocker-preview.gif)
 
 Watch the demo to see how Re-Lock BitLocker can lock an unlocked BitLocker drive without restarting Windows.
 
